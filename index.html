@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Broad Run CSHS</title>
+  <link rel="icon" type="image/png" href="CSHS-Logo.png" />
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-image: url('Wallpaper.webp');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      color: #fff;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding-top: 140px;
+    }
+
+    .navbar {
+      background: linear-gradient(
+        90deg,
+        rgba(30, 30, 30, 0.95) 0%,
+        rgba(44, 44, 44, 0.95) 100%
+      );
+      padding: 0 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      width: 90%;
+      margin: 0 auto;
+      left: 0;
+      right: 0;
+      top: 20px;
+      border-radius: 50px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .navbar.opaque {
+      background: rgba(30, 30, 30, 1) !important;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      margin-top: 3px;
+    }
+
+    .logo img {
+      height: 80px;
+      width: 80px;
+      object-fit: contain;
+      transition: transform 0.3s ease;
+      cursor: pointer;
+      will-change: transform;
+    }
+
+    .logo img:hover {
+      transform: scale(1.1) rotate(8deg);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+    }
+
+    .nav-links a {
+      position: relative;
+      color: #fff;
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: 600;
+      padding: 10px 20px;
+      border-radius: 25px;
+      background: rgba(255, 255, 255, 0.05);
+      overflow: hidden;
+      transition: color 0.3s ease, background 0.3s ease, transform 0.3s ease;
+      cursor: pointer;
+    }
+
+    .nav-links a::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -75%;
+      width: 50%;
+      height: 200%;
+      background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      transform: skewX(-20deg);
+      pointer-events: none;
+    }
+
+    .nav-links a:hover {
+      color: #00c853;
+      background: rgba(0, 200, 83, 0.1);
+      transform: scale(1.03);
+    }
+
+    .nav-links a:hover::before {
+      animation: shine 0.5s forwards;
+    }
+
+    @keyframes shine {
+      from {
+        left: -75%;
+      }
+      to {
+        left: 125%;
+      }
+    }
+
+    .profile-icon {
+      position: relative;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 8px rgba(0, 255, 0, 0.4);
+      border: 2px solid #00c853;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+      overflow: hidden;
+    }
+
+    .profile-icon img {
+      width: 24px;
+      height: 24px;
+      filter: invert(1);
+      pointer-events: none;
+    }
+
+    .profile-icon:hover {
+      background-color: #001a00;
+      box-shadow: 0 0 10px 3px rgba(0, 200, 83, 0.6);
+      transform: scale(1.1);
+    }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      z-index: 1001;
+    }
+
+    .hamburger span {
+      width: 30px;
+      height: 3px;
+      background-color: #fff;
+      margin: 3px 0;
+      transition: all 0.3s ease;
+    }
+
+    .hamburger.active span:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+
+    .hamburger.active span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .hamburger.active span:nth-child(3) {
+      transform: rotate(-45deg) translate(7px, -7px);
+    }
+
+    .section, .group-photo-section {
+      max-width: 1200px;
+      margin: 2rem auto;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .section.visible, .group-photo-section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .content, .group-photo-content {
+      background: linear-gradient(135deg, rgba(30, 30, 30, 0.95), rgba(44, 44, 44, 0.95));
+      border-radius: 1.5rem;
+      padding: 2.5rem;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .content:hover, .group-photo-content:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 25px rgba(0, 200, 83, 0.2);
+    }
+
+    .content h2, .group-photo-content h2 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #00c853;
+      margin-bottom: 1.5rem;
+      position: relative;
+      text-align: center;
+    }
+
+    .content h2::after, .group-photo-content h2::after {
+      content: '';
+      position: absolute;
+      bottom: -0.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 3px;
+      background: linear-gradient(90deg, #00c853, transparent);
+    }
+
+    .content p, .group-photo-content p {
+      font-size: 1.25rem;
+      line-height: 1.8;
+      color: #e0e0e0;
+      text-align: left;
+    }
+
+    .group-photo-content img {
+      width: 100%;
+      max-width: 800px;
+      border-radius: 1rem;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .group-photo-content img:hover {
+      transform: scale(1.02);
+    }
+
+    .footer {
+      background: linear-gradient(135deg, rgba(20, 20, 20, 0.98), rgba(40, 40, 40, 0.98));
+      padding: 3rem 2rem;
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2rem;
+      border-top: 4px solid #00c853;
+      box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.5);
+      border-radius: 1rem 1rem 0 0;
+      margin-top: auto;
+      position: relative;
+      z-index: 1000;
+    }
+
+    .footer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, rgba(0, 200, 83, 0.15) 0%, transparent 70%);
+      z-index: -1;
+    }
+
+    .footer-section {
+      flex: 1 1 250px;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .footer-section h3 {
+      font-size: 1.25rem;
+      color: #00c853;
+      margin-bottom: 1rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      position: relative;
+    }
+
+    .footer-section h3::after {
+      content: '';
+      position: absolute;
+      bottom: -0.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50px;
+      height: 2px;
+      background: linear-gradient(90deg, #00c853, transparent);
+    }
+
+    .footer-section p, .footer-section a {
+      font-size: 1rem;
+      color: #e0e0e0;
+      text-decoration: none;
+      display: block;
+      margin: 0.5rem 0;
+      transition: color 0.3s ease, transform 0.3s ease;
+    }
+
+    .footer-section a:hover {
+      color: #00c853;
+      transform: translateX(5px);
+    }
+
+    .footer .copyright {
+      width: 100%;
+      text-align: center;
+      font-size: 0.875rem;
+      color: #bbb;
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(0, 200, 83, 0.3);
+      font-style: italic;
+    }
+
+    @media (max-width: 768px) {
+      .navbar {
+        padding: 0 20px;
+        flex-wrap: wrap;
+      }
+
+      .logo img {
+        height: 60px;
+        width: 60px;
+      }
+
+      .hamburger {
+        display: flex;
+      }
+
+      .nav-links {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        background: linear-gradient(90deg, rgba(30, 30, 30, 0.95), rgba(44, 44, 44, 0.95));
+        padding: 20px;
+        border-radius: 0 0 25px 25px;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+      }
+
+      .nav-links.active {
+        display: flex;
+      }
+
+      .nav-links a {
+        font-size: 16px;
+        padding: 12px 15px;
+        width: 100%;
+        text-align: center;
+      }
+
+      .content h2, .group-photo-content h2 {
+        font-size: 1.75rem;
+      }
+
+      .content p, .group-photo-content p {
+        font-size: 1rem;
+      }
+
+      .footer {
+        padding: 1.5rem;
+        gap: 1.5rem;
+      }
+
+      .footer-section {
+        flex: 1 1 200px;
+      }
+
+      .footer-section h3 {
+        font-size: 1rem;
+      }
+
+      .footer-section p, .footer-section a {
+        font-size: 0.875rem;
+      }
+
+      .footer .copyright {
+        font-size: 0.75rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .footer {
+        padding: 1rem;
+        gap: 1rem;
+      }
+
+      .footer-section {
+        flex: 1 1 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="logo">
+      <img src="CSHS-Logo.png" alt="CSHS Logo" />
+    </a>
+    <div class="hamburger" onclick="toggleMenu()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <div class="nav-links">
+      <a href="about.html">About</a>
+      <a href="attendance.html">Attendance</a>
+      <a href="activities.html">Activities & Hours</a>
+      <a href="profile.html" class="profile-icon" title="Profile">
+        <img src="https://img.icons8.com/material-rounded/24/000000/user.png" alt="Profile" />
+      </a>
+    </div>
+  </nav>
+
+  <section class="section">
+    <div class="content">
+      <h2>Announcements</h2>
+      <p>
+        <strong>📅 CSHS General Meeting:</strong> Join us this Friday, July 18, 2025, at 3:30 PM in Room 204 for our monthly meeting. We'll discuss upcoming projects, volunteer opportunities, and officer elections. Snacks provided!<br />
+        <strong>📢 Volunteer Hours Submission:</strong> Our new online Volunteer Hours Form is now live! Log your hours for community service and club activities by July 31, 2025, to ensure they count toward your CSHS requirements.<br />
+        <strong>🎉 Senior Recognition:</strong> Congratulations to the Class of 2025 for their outstanding contributions to CSHS! Join us at the Senior Send-Off Ceremony on August 10, 2025, to celebrate their achievements.<br />
+        <strong>⚠️ Deadline Reminder:</strong> All volunteer hours and project submissions for the 2024-2025 school year must be completed by July 31, 2025. Late submissions will not be accepted.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="content">
+      <h2>About CSHS</h2>
+      <p>
+        The Broad Run Computer Science Honor Society (CSHS) is a prestigious organization dedicated to recognizing students who demonstrate excellence in computer science, leadership, and community service. Founded in 2018, our chapter at Broad Run High School fosters a passion for technology and innovation while encouraging members to make a positive impact in their school and local community.
+      </p>
+      <p>
+        CSHS members participate in a variety of activities, including organizing coding bootcamps, mentoring middle school students through Hour of Code initiatives, and collaborating on tech-driven community service projects. Our society emphasizes not only technical proficiency but also teamwork, communication, and ethical leadership in the ever-evolving field of computer science. By joining CSHS, students gain access to exclusive workshops, networking opportunities with industry professionals, and a platform to showcase their skills through regional and national competitions.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="content">
+      <h2>Upcoming Events</h2>
+      <p>
+        <strong>🧼 Campus Cleanup Initiative – July 20, 2025:</strong> Help beautify our school grounds! Join us at 9:00 AM for a campus cleanup event. Earn volunteer hours and enjoy a morning outdoors with fellow CSHS members.<br />
+        <strong>🎒 Backpack Drive for Local Schools – August 5, 2025:</strong> Partner with us to collect and distribute backpacks filled with school supplies for underprivileged students. Drop-off locations will be available in the school lobby.<br />
+        <strong>🍪 Annual CSHS Bake Sale – August 12, 2025:</strong> Support our fundraising efforts by baking or buying delicious treats during lunch periods. All proceeds fund our coding workshops and community outreach programs.<br />
+        <strong>💻 Officer Interest Meeting – August 18, 2025:</strong> Interested in leading CSHS? Attend our officer interest meeting at 3:30 PM in Room 204 to learn about roles, responsibilities, and the election process.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="content">
+      <h2>Why Join CSHS?</h2>
+      <p>
+        Becoming a member of the Broad Run Computer Science Honor Society is an opportunity to immerse yourself in the world of technology while making a tangible difference. CSHS offers a dynamic environment where you can enhance your coding skills, collaborate on innovative projects, and build lasting friendships. Members enjoy exclusive access to workshops, hackathons, and mentorship programs designed to prepare them for college and careers in STEM fields. Beyond academics, CSHS encourages community involvement, helping students develop leadership skills and a sense of responsibility that will serve them well in any path they choose.
+      </p>
+      <p>
+        Join us to unlock new opportunities, challenge yourself, and be part of a community passionate about computer science and service.
+      </p>
+    </div>
+  </section>
+
+  <section class="group-photo-section">
+    <div class="group-photo-content flex flex-col items-center">
+      <h2>Group Photo</h2>
+      <img src="Group-Photo.jpg" alt="Broad Run Computer Science Honor Society Group Photo" />
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-section">
+      <h3>Contact Us</h3>
+      <p><a href="mailto:cshs@broadrunhs.org">cshs@broadrunhs.org</a></p>
+      <p>(703) 555-1234</p>
+    </div>
+    <div class="footer-section">
+      <h3>Quick Links</h3>
+      <p><a href="index.html">CSHS Home</a></p>
+      <p><a href="about.html">About</a></p>
+      <p><a href="attendance.html">Attendance</a></p>
+      <p><a href="activities.html">Activities & Hours</a></p>
+    </div>
+    <div class="footer-section">
+      <h3>Our Mission</h3>
+      <p>
+        To inspire excellence in computer science, foster innovative thinking, and empower students to lead and serve their community through technology.
+      </p>
+    </div>
+    <div class="copyright">© 2025 Broad Run CSHS. All rights reserved.</div>
+  </footer>
+
+  <script>
+    function toggleMenu() {
+      const navLinks = document.querySelector('.nav-links');
+      const hamburger = document.querySelector('.hamburger');
+      navLinks.classList.toggle('active');
+      hamburger.classList.toggle('active');
+    }
+
+    window.addEventListener('scroll', () => {
+      const navbar = document.querySelector('.navbar');
+      if (window.scrollY > 10) {
+        navbar.classList.add('opaque');
+      } else {
+        navbar.classList.remove('opaque');
+      }
+    });
+
+    gsap.utils.toArray('.section, .group-photo-section').forEach((section) => {
+      gsap.fromTo(section, 
+        { opacity: 0, y: 20 },
+        { 
+          opacity: 1, 
+          y: 0, 
+          duration: 0.8, 
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: section,
+            start: 'top 80%',
+            toggleActions: 'play none none none'
+          }
+        }
+      );
+    });
+  </script>
+</body>
+</html>
